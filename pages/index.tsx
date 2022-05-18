@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { NextPage } from "next";
+import { useRouter } from "next/router";
 
 import { useQuery } from "react-query";
 
@@ -15,7 +16,7 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import SearchIcon from "@mui/icons-material/Search";
 
 async function getLoans(page: number = 0, pageSize: number = 10): Promise<any> {
-  const res = await fetch("/api/loans");
+  const res = await fetch(`/api/loans?page=${page}&pageSize=${pageSize}`);
   return res.json();
 }
 
@@ -32,14 +33,20 @@ const columns: GridColDef[] = [
 ];
 
 const Home: NextPage = () => {
-  const [page, setPage] = useState(0);
-  const [pageSize, setPageSize] = useState(10);
+  const router = useRouter();
+  const { page, pageSize } = router.query;
+  const [currentPage, setCurrentPage] = useState(Number(page));
+  const [currentPageSize, setCurrentPageSize] = useState(Number(pageSize));
+  const [rows, setRows] = useState([]);
+  const [rowCount, setRowCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data } = useQuery(["loans", page, pageSize], () =>
-    getLoans(page, pageSize)
-  );
-  const [rows, rowCount] = data ?? [[], 0];
+  useEffect( async (): Promise<void> => {
+    const data = await getLoans(currentPage, currentPageSize)
+    setRows(rows)
+    setRowCount(rowCount)
+  }, [])
+  
 
   return (
     <>
@@ -64,10 +71,10 @@ const Home: NextPage = () => {
           columns={columns}
           autoHeight
           rowCount={rowCount}
-          page={page}
-          pageSize={pageSize}
-          onPageSizeChange={(pageSize) => setPageSize(pageSize)}
-          onPageChange={(page) => setPage(page)}
+          page={currentPage}
+          pageSize={currentPageSize}
+          onPageSizeChange={(currentPageSize) => setCurrentPageSize(currentPageSize)}
+          onPageChange={(currentPage) => setCurrentPage(currentPage)}
         />
       </Container>
     </>
