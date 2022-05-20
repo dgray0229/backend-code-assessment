@@ -28,8 +28,7 @@ export default async function handler(
         offset ${page}
         `);
     const { rows } = result
-		res.status(200).json([rows]);
-		console.log(result);
+		res.status(200).json([rows, pageSize]);
 	} catch (err: any) {
 		console.log(err);
 		res.status(500).send(err.message);

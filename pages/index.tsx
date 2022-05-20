@@ -34,51 +34,51 @@ const columns: GridColDef[] = [
 
 const Home: NextPage = () => {
   const router = useRouter();
-  const { page, pageSize } = router.query;
-  const [currentPage, setCurrentPage] = useState(Number(page));
-  const [currentPageSize, setCurrentPageSize] = useState(Number(pageSize));
+  const { page = 0, pageSize = 10 } = router.query;
   const [rows, setRows] = useState([]);
   const [rowCount, setRowCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const [currentPage, currentPageSize] = [Number(page), Number(pageSize)]
   useEffect( async (): Promise<void> => {
-    const data = await getLoans(currentPage, currentPageSize)
-    setRows(rows)
-    setRowCount(rowCount)
-  }, [])
+    const data = await getLoans(currentPage, currentPageSize);
+    const [rows, rowCount] = data ?? [[], 0];
+    setRows(rows);
+    setRowCount(rowCount);
+  }, [rows, rowCount])
   
 
   return (
-    <>
-      <AppBar position="static">
-        <Toolbar>Quanta Code Assessment</Toolbar>
-      </AppBar>
-      <Container maxWidth="lg" sx={{ pt: 15 }}>
-        <TextField
-          label="Search"
-          placeholder="search by address or company..."
-          sx={{ width: 350, marginBottom: 4}}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            ),
-          }}
-        />
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          autoHeight
-          rowCount={rowCount}
-          page={currentPage}
-          pageSize={currentPageSize}
-          onPageSizeChange={(currentPageSize) => setCurrentPageSize(currentPageSize)}
-          onPageChange={(currentPage) => setCurrentPage(currentPage)}
-        />
-      </Container>
-    </>
-  );
+		<>
+			<AppBar position="static">
+				<Toolbar>Quanta Code Assessment</Toolbar>
+			</AppBar>
+			<Container maxWidth="lg" sx={{ pt: 15 }}>
+				<TextField
+					label="Search"
+					placeholder="search by address or company..."
+					sx={{ width: 350, marginBottom: 4 }}
+					InputProps={{
+						startAdornment: (
+							<InputAdornment position="start">
+								<SearchIcon />
+							</InputAdornment>
+						),
+					}}
+				/>
+				<DataGrid
+					rows={rows}
+					columns={columns}
+					autoHeight
+					rowCount={rowCount}
+					page={currentPage}
+					pageSize={currentPageSize}
+					onPageSizeChange={(pageSize) => pageSize}
+					onPageChange={(page) => page}
+				/>
+			</Container>
+		</>
+	);
 };
 
 export default Home;
